@@ -1282,9 +1282,9 @@
         // Register service worker for PWA functionality
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
+                navigator.serviceWorker.register('/fuel-calculator/sw.js')
                     .then(reg => console.log('Service Worker registered'))
-                    .catch(err => console.log('Service Worker registration failed'));
+                    .catch(err => console.log('Service Worker registration failed:', err));
             });
         }
         
@@ -1293,7 +1293,6 @@
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            // You can show custom install button here if you want
         });
     </script>
 </body>

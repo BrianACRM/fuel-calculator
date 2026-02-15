@@ -1,8 +1,8 @@
 const CACHE_NAME = 'flight-fuel-calc-v1';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/manifest.json'
+  '/fuel-calculator/',
+  '/fuel-calculator/index.html',
+  '/fuel-calculator/manifest.json'
 ];
 
 // Install service worker
