@@ -1,0 +1,1300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Fuel Calc">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#00d4ff">
+    <meta name="description" content="Professional aviation fuel planning calculator">
+    
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
+    <title>Flight Fuel Calculator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&amp;family=Space+Mono:wght@400;700&amp;display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00d4ff;
+            --secondary: #ff6b35;
+            --dark: #0a1628;
+            --darker: #050b14;
+            --panel: #0f1e35;
+            --text: #e8f4f8;
+            --text-dim: #7a9cb5;
+            --border: #1a3a5a;
+            --glow: rgba(0, 212, 255, 0.3);
+            --warning: #ffa500;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 100%);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 2rem;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(0, 212, 255, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(255, 107, 53, 0.03) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--primary) 0%, #00a8cc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+        }
+
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 0.8s ease-out 0.2s both;
+            margin-bottom: 2rem;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            opacity: 0.5;
+        }
+
+        .input-section {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .input-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--text-dim);
+            margin-bottom: 0.75rem;
+            display: block;
+            font-weight: 600;
+        }
+
+        .flight-time-input {
+            width: 200px;
+            background: var(--dark);
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            padding: 1rem;
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: 'Space Mono', monospace;
+            color: var(--primary);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .flight-time-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 20px var(--glow);
+        }
+
+        .flight-time-input::placeholder {
+            color: var(--text-dim);
+            opacity: 0.3;
+        }
+
+        .checkbox-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        .checkbox-option {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+
+        .checkbox-option input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+
+        .checkbox-option label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-dim);
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .constraint-input-inline {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .constraint-input-inline.visible {
+            display: flex;
+        }
+
+        .constraint-input-inline input {
+            width: 120px;
+            background: var(--dark);
+            border: 2px solid var(--warning);
+            border-radius: 6px;
+            padding: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            font-family: 'Space Mono', monospace;
+            color: var(--warning);
+            text-align: center;
+        }
+
+        .constraint-input-inline input:focus {
+            outline: none;
+            box-shadow: 0 0 15px rgba(255, 165, 0, 0.3);
+        }
+
+        .constraint-input-inline label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            letter-spacing: 0.1em;
+        }
+
+        .constraint-input-inline .unit {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            font-family: 'Space Mono', monospace;
+        }
+
+        .alternate-inputs {
+            display: none;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .alternate-inputs.visible {
+            display: grid;
+        }
+
+        .alternate-input-group {
+            text-align: center;
+        }
+
+        .alternate-input-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-dim);
+            margin-bottom: 0.5rem;
+            display: block;
+            font-weight: 600;
+        }
+
+        .alternate-input {
+            width: 100%;
+            background: var(--dark);
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            padding: 0.75rem;
+            font-size: 1.2rem;
+            font-weight: 700;
+            font-family: 'Space Mono', monospace;
+            color: var(--warning);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .alternate-input:focus {
+            outline: none;
+            border-color: var(--warning);
+            box-shadow: 0 0 20px rgba(255, 165, 0, 0.3);
+        }
+
+        .input-unit {
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            margin-top: 0.25rem;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .summary-box {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .summary-item {
+            text-align: center;
+        }
+
+        .summary-label {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .summary-value {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .hour-block {
+            background: var(--dark);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 0.75rem;
+            transition: all 0.3s ease;
+            animation: slideIn 0.4s ease-out both;
+            display: grid;
+            grid-template-columns: 200px 1fr 140px;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .hour-block:hover {
+            border-color: var(--primary);
+            background: rgba(0, 212, 255, 0.03);
+        }
+
+        .hour-block.first-hour {
+            background: rgba(0, 212, 255, 0.05);
+            border-color: rgba(0, 212, 255, 0.3);
+        }
+
+        .hour-block.alternate-block {
+            background: rgba(255, 165, 0, 0.05);
+            border-color: rgba(255, 165, 0, 0.3);
+        }
+
+        .hour-block.alternate-block .hour-title {
+            color: var(--warning);
+        }
+
+        .hour-modifier-select {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 0.5rem 0.75rem;
+            color: var(--text);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            width: 100%;
+        }
+
+        .hour-modifier-select:hover,
+        .hour-modifier-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(0, 212, 255, 0.05);
+        }
+
+        .hour-modifier-select option {
+            background: var(--panel);
+            color: var(--text);
+        }
+
+        .alternate-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .climb-input-small {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 0.4rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            font-family: 'Space Mono', monospace;
+            color: var(--warning);
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .climb-input-small:focus {
+            outline: none;
+            border-color: var(--warning);
+        }
+
+        .climb-input-small::placeholder {
+            color: var(--text-dim);
+            opacity: 0.5;
+        }
+
+        .hour-info {
+            text-align: center;
+        }
+
+        .hour-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-dim);
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+
+        .hour-fuel {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--secondary);
+            font-family: 'Space Mono', monospace;
+            margin-bottom: 0.25rem;
+        }
+
+        .fuel-annotation {
+            font-size: 0.75rem;
+            color: var(--warning);
+            font-weight: 600;
+        }
+
+        .hour-total {
+            font-size: 0.75rem;
+            color: var(--primary);
+            font-family: 'Space Mono', monospace;
+            font-weight: 600;
+        }
+
+        .hour-total.hard-constraint {
+            color: var(--warning);
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+
+        .hour-total.joker {
+            color: #ff3333;
+            font-weight: 700;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+
+        .aircraft-weight {
+            color: #a78bfa;
+            font-size: 0.7rem;
+            margin-left: 0.5rem;
+            font-weight: 600;
+        }
+
+        .landing-weight-marker {
+            color: #22c55e;
+            font-size: 0.75rem;
+            margin-left: 0.5rem;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        .hour-block.first-hour .hour-fuel {
+            color: var(--primary);
+        }
+
+        .hour-profile-toggle {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .profile-radio-option {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            cursor: pointer;
+        }
+
+        .profile-radio-option input[type="radio"] {
+            width: 14px;
+            height: 14px;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+
+        .profile-radio-option label {
+            font-size: 0.75rem;
+            cursor: pointer;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 500;
+            user-select: none;
+        }
+
+        .profile-radio-option input[type="radio"]:checked + label {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .profile-rate {
+            font-size: 0.65rem;
+            opacity: 0.8;
+            margin-left: 0.2rem;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-dim);
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+        .empty-text {
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .disclaimer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .disclaimer-overlay.hidden {
+            display: none;
+        }
+
+        .disclaimer-modal {
+            background: var(--panel);
+            border: 2px solid var(--warning);
+            border-radius: 12px;
+            padding: 2.5rem;
+            max-width: 600px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.4s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .disclaimer-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--warning);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .disclaimer-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text);
+            margin-bottom: 2rem;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .disclaimer-button {
+            width: 100%;
+            background: var(--primary);
+            color: var(--dark);
+            border: none;
+            border-radius: 6px;
+            padding: 1rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .disclaimer-button:hover {
+            background: #00f0ff;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 212, 255, 0.4);
+        }
+
+        .disclaimer-button:active {
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .hour-block {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .summary-box, .checkbox-row {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .alternate-inputs {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Disclaimer Modal -->
+    <div class="disclaimer-overlay" id="disclaimerOverlay">
+        <div class="disclaimer-modal">
+            <div class="disclaimer-title">⚠ Disclaimer</div>
+            <div class="disclaimer-text">
+                THIS IS ONLY A PLANNING TOOL UTILIZING OUR GOUGE NUMBERS AND DOES NOT ACCOUNT FOR 3710 MINIMUM REQUIREMENTS. RUN THE CHARTS IF YOU NEED EXACTS.
+            </div>
+            <button class="disclaimer-button" onclick="closeDisclaimer()">I UNDERSTAND</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>Fuel Calculator</h1>
+            <div class="subtitle">Mission Planning System</div>
+        </header>
+
+        <div class="panel">
+            <div class="input-section">
+                <div style="display: flex; justify-content: center; gap: 2rem; align-items: flex-start; flex-wrap: wrap;">
+                    <div>
+                        <label class="input-label">Flight Duration (Hours)</label>
+                        <input type="number" class="flight-time-input" id="flightTime" placeholder="0.0" min="0" step="0.1">
+                    </div>
+                    <div>
+                        <label class="input-label">Zero Fuel Weight (Optional)</label>
+                        <input type="number" class="flight-time-input" id="zeroFuelWeight" placeholder="185" min="0" step="1">
+                        <div style="font-size: 0.65rem; color: var(--text-dim); margin-top: 0.5rem; font-family: &#39;Space Mono&#39;, monospace; text-align: center;">(x1000 lbs)</div>
+                    </div>
+                </div>
+                
+                <div class="checkbox-row">
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="hardConstraintOverhead">
+                        <label for="hardConstraintOverhead">Hard Constraint On Deck</label>
+                    </div>
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="alternateRequired">
+                        <label for="alternateRequired">Alternate Required</label>
+                    </div>
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="add_3710_reserve">
+                        <label for="add_3710_reserve">Add 3710 10% Reserve (No Alt)</label>
+                    </div>
+                    <div class="checkbox-option" id="alternate_reserve_container" style="display: none;">
+                        <input type="checkbox" id="add_3710_alternate_reserve">
+                        <label for="add_3710_alternate_reserve">Add 3710 10% Reserve (w/ Alt)</label>
+                    </div>
+                </div>
+
+                <div class="constraint-input-inline" id="overheadConstraintInput">
+                    <label>Fuel On Deck:</label>
+                    <input type="number" id="fuelOverhead" placeholder="15" min="0" step="1">
+                    <span class="unit">(x1000 lbs)</span>
+                </div>
+
+                <div class="alternate-inputs" id="alternateInputs">
+                    <div class="alternate-input-group">
+                        <label class="alternate-input-label">Approaches at Original Destination</label>
+                        <input type="number" class="alternate-input" id="approachesRequired" placeholder="0" min="0" step="1">
+                    </div>
+                    <div class="alternate-input-group">
+                        <label class="alternate-input-label">Time to Alternate (hrs)</label>
+                        <input type="number" class="alternate-input" id="timeToAlternate" placeholder="0.0" min="0" step="0.1">
+                    </div>
+                    <div class="alternate-input-group">
+                        <label class="alternate-input-label">Fuel at IAF</label>
+                        <input type="number" class="alternate-input" id="fuelAtIAF" placeholder="13" min="0" step="1">
+                        <div class="input-unit">(x1000 lbs)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div id="hourlyBreakdown">
+                <div class="empty-state">
+                    <div class="empty-icon">✈</div>
+                    <div class="empty-text">Enter flight duration to begin</div>
+                </div>
+            </div>
+            
+            <div class="summary-box" style="margin-top: 2rem;">
+                <div class="summary-item">
+                    <div class="summary-label">Flight Hours</div>
+                    <div class="summary-value" id="summaryHours">0.0</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Total Fuel Required</div>
+                    <div class="summary-value" id="summaryTotal">0 lbs</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function closeDisclaimer() {
+            document.getElementById('disclaimerOverlay').classList.add('hidden');
+        }
+
+        const FUEL_BURN_RATES = {
+            endurance: [
+                { maxFuel: 50000, rate: 8000 },
+                { maxFuel: 70000, rate: 9000 },
+                { maxFuel: 110000, rate: 10000 },
+                { maxFuel: Infinity, rate: 11000 }
+            ],
+            range: [
+                { maxFuel: 50000, rate: 9000 },
+                { maxFuel: 70000, rate: 10000 },
+                { maxFuel: 110000, rate: 11000 },
+                { maxFuel: Infinity, rate: 12000 }
+            ]
+        };
+
+        const MODIFIERS = {
+            standard: { value: 0, isAbsolute: false },
+            heavy_orbit_1hr: { value: 26000, isAbsolute: true },
+            heavy_orbit_half: { value: 18000, isAbsolute: true },
+            light_orbit_1hr: { value: 17000, isAbsolute: true },
+            light_orbit_half: { value: 13000, isAbsolute: true },
+            ar_1hr: { value: 12000, isAbsolute: true },
+            trail: { value: 1000, isAbsolute: false },
+            vfr_pattern: { value: 15000, isAbsolute: true },
+            ifr_pattern: { value: 12000, isAbsolute: true }
+        };
+
+        const FIRST_HOUR_FUEL = 15000;
+        const APPROACH_FUEL = 3000;
+
+        let currentHours = 0;
+        let hourlyData = [];
+        let config = {
+            hardConstraintOverhead: false,
+            fuelOverhead: 0,
+            alternateRequired: false,
+            approaches: 0,
+            timeToAlternate: 0,
+            fuelAtIAF: 0,
+            zeroFuelWeight: 0,
+            add3710Reserve: false,
+            add3710AlternateReserve: false
+        };
+
+        const elements = {
+            flightTime: document.getElementById('flightTime'),
+            zeroFuelWeight: document.getElementById('zeroFuelWeight'),
+            hardConstraintCheckbox: document.getElementById('hardConstraintOverhead'),
+            overheadInput: document.getElementById('overheadConstraintInput'),
+            fuelOverhead: document.getElementById('fuelOverhead'),
+            alternateCheckbox: document.getElementById('alternateRequired'),
+            alternateInputs: document.getElementById('alternateInputs'),
+            approaches: document.getElementById('approachesRequired'),
+            timeToAlternate: document.getElementById('timeToAlternate'),
+            fuelAtIAF: document.getElementById('fuelAtIAF'),
+            breakdown: document.getElementById('hourlyBreakdown'),
+            summaryHours: document.getElementById('summaryHours'),
+            summaryTotal: document.getElementById('summaryTotal'),
+            add3710Reserve: document.getElementById('add_3710_reserve'),
+            add3710AlternateReserve: document.getElementById('add_3710_alternate_reserve'),
+            alternateReserveContainer: document.getElementById('alternate_reserve_container')
+        };
+
+        elements.flightTime.addEventListener('input', (e) => {
+            currentHours = parseFloat(e.target.value) || 0;
+            generateBreakdown();
+        });
+
+        elements.zeroFuelWeight.addEventListener('input', (e) => {
+            config.zeroFuelWeight = (parseInt(e.target.value) || 0) * 1000;
+            generateBreakdown();
+        });
+
+        elements.hardConstraintCheckbox.addEventListener('change', (e) => {
+            config.hardConstraintOverhead = e.target.checked;
+            elements.overheadInput.classList.toggle('visible', e.target.checked);
+            if (!e.target.checked) config.fuelOverhead = 0;
+            generateBreakdown();
+        });
+
+        elements.fuelOverhead.addEventListener('input', (e) => {
+            config.fuelOverhead = (parseInt(e.target.value) || 0) * 1000;
+            generateBreakdown();
+        });
+
+        elements.alternateCheckbox.addEventListener('change', (e) => {
+            config.alternateRequired = e.target.checked;
+            elements.alternateInputs.classList.toggle('visible', e.target.checked);
+            elements.alternateReserveContainer.style.display = e.target.checked ? 'block' : 'none';
+            if (!e.target.checked) {
+                config.approaches = 0;
+                config.timeToAlternate = 0;
+                config.fuelAtIAF = 0;
+                config.add3710AlternateReserve = false;
+                elements.add3710AlternateReserve.checked = false;
+            }
+            generateBreakdown();
+        });
+
+        elements.approaches.addEventListener('input', (e) => {
+            config.approaches = parseInt(e.target.value) || 0;
+            generateBreakdown();
+        });
+
+        elements.timeToAlternate.addEventListener('input', (e) => {
+            config.timeToAlternate = parseFloat(e.target.value) || 0;
+            generateBreakdown();
+        });
+
+        elements.fuelAtIAF.addEventListener('input', (e) => {
+            config.fuelAtIAF = (parseInt(e.target.value) || 0) * 1000;
+            generateBreakdown();
+        });
+
+        elements.add3710Reserve.addEventListener('change', (e) => {
+            config.add3710Reserve = e.target.checked;
+            generateBreakdown();
+        });
+
+        elements.add3710AlternateReserve.addEventListener('change', (e) => {
+            config.add3710AlternateReserve = e.target.checked;
+            generateBreakdown();
+        });
+
+        function getBurnRate(remainingFuel, profile) {
+            const rates = FUEL_BURN_RATES[profile];
+            for (let bracket of rates) {
+                if (remainingFuel < bracket.maxFuel) {
+                    return bracket.rate;
+                }
+            }
+            return rates[rates.length - 1].rate;
+        }
+
+        function calculateHourFuel(baseRate, modifier) {
+            const mod = MODIFIERS[modifier];
+            return mod.isAbsolute ? mod.value : baseRate + mod.value;
+        }
+
+        function generateBreakdown() {
+            if (currentHours <= 0) {
+                elements.breakdown.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">✈</div>
+                        <div class="empty-text">Enter flight duration to begin</div>
+                    </div>
+                `;
+                hourlyData = [];
+                updateSummary();
+                return;
+            }
+
+            const totalBaseHours = Math.ceil(currentHours);
+            
+            // Store existing modifiers, profiles, and adjustments before regenerating
+            const existingSettings = {};
+            for (let i = 0; i < hourlyData.length; i++) {
+                if (!hourlyData[i].isAlternate) {
+                    existingSettings[i] = {
+                        modifier: hourlyData[i].modifier,
+                        profile: hourlyData[i].profile,
+                        firstHourAdjustment: hourlyData[i].firstHourAdjustment
+                    };
+                } else {
+                    existingSettings[i] = {
+                        climbAdjustment: hourlyData[i].climbAdjustment
+                    };
+                }
+            }
+            
+            hourlyData = [];
+
+            // Initialize base flight hours
+            for (let i = 0; i < totalBaseHours; i++) {
+                hourlyData.push({
+                    index: i,
+                    baseRate: i === 0 ? FIRST_HOUR_FUEL : 9000,
+                    modifier: existingSettings[i]?.modifier || 'standard',
+                    profile: existingSettings[i]?.profile || 'endurance',
+                    totalFuel: i === 0 ? FIRST_HOUR_FUEL : 9000,
+                    fuelAtStart: 0,
+                    isAlternate: false,
+                    climbAdjustment: 0,
+                    firstHourAdjustment: existingSettings[i]?.firstHourAdjustment || 0
+                });
+            }
+
+            // Add alternate transit as single block if needed
+            if (config.alternateRequired && config.timeToAlternate > 0) {
+                const altIndex = totalBaseHours;
+                hourlyData.push({
+                    index: altIndex,
+                    baseRate: 9000,
+                    modifier: 'standard',
+                    profile: 'range',
+                    totalFuel: 9000 * config.timeToAlternate,
+                    fuelAtStart: 0,
+                    isAlternate: true,
+                    alternateTime: config.timeToAlternate,
+                    climbAdjustment: existingSettings[altIndex]?.climbAdjustment || 0,
+                    firstHourAdjustment: 0
+                });
+            }
+
+            calculateFuelBackwards();
+            renderBreakdown();
+            updateSummary();
+        }
+
+        function calculateFuelBackwards() {
+            const maxIterations = 15;
+            let iteration = 0;
+            let converged = false;
+
+            while (!converged && iteration < maxIterations) {
+                converged = true;
+                
+                // Determine ending constraint - this is fuel ON DECK (after all flying)
+                let fuelOnDeck = 0;
+                if (config.alternateRequired && config.fuelAtIAF > 0) {
+                    fuelOnDeck = config.fuelAtIAF;
+                } else if (config.hardConstraintOverhead && config.fuelOverhead > 0) {
+                    fuelOnDeck = config.fuelOverhead;
+                }
+                
+                // Work backwards through all hours
+                for (let i = hourlyData.length - 1; i >= 0; i--) {
+                    const hourData = hourlyData[i];
+                    
+                    if (i === 0) {
+                        hourData.baseRate = FIRST_HOUR_FUEL;
+                        hourData.totalFuel = FIRST_HOUR_FUEL + hourData.firstHourAdjustment;
+                        hourData.fuelAtStart = fuelOnDeck + hourData.totalFuel;
+                    } else {
+                        // Fuel at START of this hour = fuel on deck + this hour's burn
+                        const newBaseRate = getBurnRate(fuelOnDeck, hourData.profile);
+                        
+                        if (Math.abs(newBaseRate - hourData.baseRate) > 100) {
+                            converged = false;
+                        }
+                        
+                        hourData.baseRate = newBaseRate;
+                        let hourFuel;
+                        
+                        // Handle alternate transit
+                        if (hourData.isAlternate) {
+                            hourFuel = newBaseRate * hourData.alternateTime;
+                            hourFuel += hourData.climbAdjustment;
+                        } else {
+                            hourFuel = calculateHourFuel(newBaseRate, hourData.modifier);
+                            
+                            // Add approaches to last hour of base flight
+                            const baseHours = Math.ceil(currentHours);
+                            if (i === baseHours - 1 && config.alternateRequired) {
+                                hourFuel += (config.approaches * APPROACH_FUEL);
+                            }
+                        }
+                        
+                        hourData.totalFuel = hourFuel;
+                        hourData.fuelAtStart = fuelOnDeck + hourFuel;
+                    }
+                    
+                    fuelOnDeck += hourData.totalFuel;
+                }
+                
+                iteration++;
+            }
+        }
+
+        function renderBreakdown() {
+            let html = '';
+            const baseHours = Math.ceil(currentHours);
+            
+            for (let i = 0; i < hourlyData.length; i++) {
+                const hourData = hourlyData[i];
+                const isFirstHour = i === 0;
+                const isLastBaseHour = !hourData.isAlternate && i === baseHours - 1;
+                const isLastHour = i === hourlyData.length - 1;
+                
+                let hourLabel;
+                if (hourData.isAlternate) {
+                    hourLabel = `To Alternate (${hourData.alternateTime.toFixed(1)} hr)`;
+                } else {
+                    hourLabel = `Hour ${i + 1}`;
+                }
+                
+                // Fuel remaining AFTER this hour
+                let fuelAfter = hourData.fuelAtStart - hourData.totalFuel;
+                
+                // Calculate aircraft weight if ZFW is provided
+                let aircraftWeightAtStart = 0;
+                let aircraftWeightAtEnd = 0;
+                let showWeight = false;
+                let isAtLandingWeight = false;
+                const LANDING_WEIGHT = 250000;
+                
+                if (config.zeroFuelWeight > 0) {
+                    aircraftWeightAtStart = config.zeroFuelWeight + hourData.fuelAtStart;
+                    aircraftWeightAtEnd = config.zeroFuelWeight + fuelAfter;
+                    showWeight = true;
+                    
+                    // Check if this hour crosses the 250K landing weight threshold
+                    if (aircraftWeightAtStart > LANDING_WEIGHT && aircraftWeightAtEnd <= LANDING_WEIGHT) {
+                        isAtLandingWeight = true;
+                    }
+                }
+                
+                // Determine if we show hard constraint or JOKER
+                let showHardConstraint = false;
+                let showJoker = false;
+                let constraintValue = 0;
+                
+                if (isLastHour && config.alternateRequired && config.fuelAtIAF > 0) {
+                    showHardConstraint = true;
+                    constraintValue = config.fuelAtIAF;
+                } else if (isLastBaseHour && config.alternateRequired) {
+                    // Last hour of base flight with alternate - ALWAYS show JOKER
+                    showJoker = true;
+                } else if (isLastBaseHour && !config.alternateRequired && config.hardConstraintOverhead && config.fuelOverhead > 0) {
+                    showHardConstraint = true;
+                    constraintValue = config.fuelOverhead;
+                }
+                
+                // Build fuel display with annotations
+                let fuelDisplay = formatFuel(hourData.totalFuel);
+                if (isLastBaseHour && config.alternateRequired && config.approaches > 0) {
+                    fuelDisplay += ` <span class="fuel-annotation">(+${config.approaches} appr × 3K)</span>`;
+                }
+                if (hourData.modifier === 'trail' && !isFirstHour && !hourData.isAlternate) {
+                    fuelDisplay += ` <span class="fuel-annotation">(+1K)</span>`;
+                }
+                if (hourData.isAlternate && hourData.climbAdjustment > 0) {
+                    fuelDisplay += ` <span class="fuel-annotation">(+${formatNumber(hourData.climbAdjustment)} climb)</span>`;
+                }
+
+                html += `
+                    <div class="hour-block ${isFirstHour ? 'first-hour' : ''} ${hourData.isAlternate ? 'alternate-block' : ''}" style="animation-delay: ${i * 0.05}s">
+                        ${isFirstHour ? `
+                        <div class="alternate-controls" style="visibility: hidden;"></div>
+                        ` : !hourData.isAlternate ? `
+                        <select class="hour-modifier-select" id="modifier_${i}" data-hour="${i}">
+                            <option value="standard">Standard</option>
+                            <option value="heavy_orbit_1hr">Heavy Orbit 1hr</option>
+                            <option value="heavy_orbit_half">Heavy Orbit 0.5hr</option>
+                            <option value="light_orbit_1hr">Light Orbit 1hr</option>
+                            <option value="light_orbit_half">Light Orbit 0.5hr</option>
+                            <option value="ar_1hr">A/R 1hr</option>
+                            <option value="trail">Trail</option>
+                            <option value="vfr_pattern">VFR Pattern 1hr</option>
+                            <option value="ifr_pattern">IFR Pattern 1hr</option>
+                        </select>
+                        ` : `
+                        <div class="alternate-controls">
+                            <input type="number" class="climb-input-small" id="climb_${i}" placeholder="Climb (x1000)" min="0" step="1">
+                        </div>
+                        `}
+                        
+                        <div class="hour-info">
+                            <div class="hour-title">${hourLabel}</div>
+                            <div class="hour-fuel" id="fuel_${i}">${fuelDisplay}</div>
+                            <div class="hour-total ${showHardConstraint ? 'hard-constraint' : ''} ${showJoker ? 'joker' : ''}" id="remaining_${i}">
+                                ${showHardConstraint ? 
+                                    `Hard Constraint On Deck: ${formatFuel(constraintValue)}${showWeight ? ` <span class="aircraft-weight">(A/C: ${formatNumber(config.zeroFuelWeight + constraintValue)})</span>` : ''}` : 
+                                    showJoker ?
+                                    `Fuel at End of Hour: ${formatFuel(fuelAfter)} (JOKER)${showWeight ? ` <span class="aircraft-weight">(A/C: ${formatNumber(aircraftWeightAtEnd)})</span>` : ''}` :
+                                    `Fuel at End of Hour: ${formatFuel(fuelAfter)}${showWeight ? ` <span class="aircraft-weight">(A/C: ${formatNumber(aircraftWeightAtEnd)})</span>` : ''}${isAtLandingWeight ? ` <span class="landing-weight-marker">LANDING WEIGHT</span>` : ''}`}
+                            </div>
+                        </div>
+                        
+                        ${!isFirstHour ? `
+                        <div class="hour-profile-toggle">
+                            <div class="profile-radio-option">
+                                <input type="radio" id="endurance_${i}" name="profile_${i}" value="endurance" ${hourData.profile === 'endurance' ? 'checked' : ''} data-hour="${i}">
+                                <label for="endurance_${i}">Endurance <span class="profile-rate" id="rate_endurance_${i}">(${formatNumber(getBurnRate(hourData.fuelAtStart, 'endurance'))})</span></label>
+                            </div>
+                            <div class="profile-radio-option">
+                                <input type="radio" id="range_${i}" name="profile_${i}" value="range" ${hourData.profile === 'range' ? 'checked' : ''} data-hour="${i}">
+                                <label for="range_${i}">Range <span class="profile-rate" id="rate_range_${i}">(${formatNumber(getBurnRate(hourData.fuelAtStart, 'range'))})</span></label>
+                            </div>
+                        </div>
+                        ` : '<div></div>'}
+                    </div>
+                `;
+            }
+
+            elements.breakdown.innerHTML = html;
+            attachEventListeners();
+        }
+
+        function attachEventListeners() {
+            for (let i = 1; i < hourlyData.length; i++) {
+                const hourData = hourlyData[i];
+                
+                if (!hourData.isAlternate) {
+                    const dropdown = document.getElementById(`modifier_${i}`);
+                    if (dropdown) {
+                        dropdown.value = hourData.modifier;
+                        dropdown.addEventListener('change', function() {
+                            hourlyData[i].modifier = this.value;
+                            calculateFuelBackwards();
+                            renderBreakdown();
+                            updateSummary();
+                        });
+                    }
+                }
+                
+                if (hourData.isAlternate) {
+                    const climbInput = document.getElementById(`climb_${i}`);
+                    if (climbInput) {
+                        climbInput.value = hourData.climbAdjustment ? hourData.climbAdjustment / 1000 : '';
+                        climbInput.addEventListener('input', function() {
+                            hourlyData[i].climbAdjustment = (parseInt(this.value) || 0) * 1000;
+                            calculateFuelBackwards();
+                            renderBreakdown();
+                            updateSummary();
+                        });
+                    }
+                }
+                
+                const enduranceRadio = document.getElementById(`endurance_${i}`);
+                const rangeRadio = document.getElementById(`range_${i}`);
+                
+                if (enduranceRadio) {
+                    enduranceRadio.addEventListener('change', function() {
+                        if (this.checked) {
+                            hourlyData[i].profile = 'endurance';
+                            calculateFuelBackwards();
+                            renderBreakdown();
+                            updateSummary();
+                        }
+                    });
+                }
+                
+                if (rangeRadio) {
+                    rangeRadio.addEventListener('change', function() {
+                        if (this.checked) {
+                            hourlyData[i].profile = 'range';
+                            calculateFuelBackwards();
+                            renderBreakdown();
+                            updateSummary();
+                        }
+                    });
+                }
+            }
+        }
+
+        function updateSummary() {
+            let totalFuel = hourlyData.reduce((sum, hour) => sum + hour.totalFuel, 0);
+            
+            // Check if a hard constraint is active
+            const hasHardConstraint = (config.hardConstraintOverhead && config.fuelOverhead > 0) || 
+                                     (config.alternateRequired && config.fuelAtIAF > 0);
+            
+            // Add the on-deck constraint to total fuel required
+            if (config.hardConstraintOverhead && config.fuelOverhead > 0) {
+                totalFuel += config.fuelOverhead;
+            } else if (config.alternateRequired && config.fuelAtIAF > 0) {
+                totalFuel += config.fuelAtIAF;
+            }
+            
+            // NOW capture planned fuel after all mission requirements are added
+            let plannedFuel = totalFuel;
+            
+            // Add 3710 10% reserve if applicable (calculated on total planned fuel including constraints/alternate)
+            let reserve3710 = 0;
+            if (config.add3710Reserve && !config.alternateRequired) {
+                // Case 1: No alternate - add 10% of planned fuel (includes hard constraint if selected)
+                reserve3710 = plannedFuel * 0.1;
+                totalFuel += reserve3710;
+            } else if (config.add3710AlternateReserve && config.alternateRequired) {
+                // Case 2: Alternate required - add 10% of planned fuel (includes alternate route and IAF fuel)
+                reserve3710 = plannedFuel * 0.1;
+                totalFuel += reserve3710;
+            }
+            
+            const totalHours = config.alternateRequired && config.timeToAlternate > 0 ? 
+                currentHours + config.timeToAlternate : 
+                currentHours;
+
+            elements.summaryHours.textContent = totalHours.toFixed(1);
+            
+            // Calculate takeoff weight if ZFW is provided
+            let takeoffWeightDisplay = '';
+            if (config.zeroFuelWeight > 0) {
+                const takeoffWeight = config.zeroFuelWeight + totalFuel;
+                takeoffWeightDisplay = ` <span style="font-size: 0.75rem; color: #a78bfa; font-weight: 600;">(T/O: ${formatNumber(takeoffWeight)})</span>`;
+            }
+            
+            // Show reminder if no hard constraint is set
+            let reserveNote = '';
+            if (reserve3710 > 0) {
+                reserveNote = ` <span style="font-size: 0.75rem; color: #00d4ff; font-weight: 600;">(+${formatFuel(reserve3710)} 3710 10% reserve)</span>`;
+            }
+            
+            if (hasHardConstraint || reserve3710 > 0) {
+                elements.summaryTotal.innerHTML = `${formatFuel(totalFuel)}${reserveNote}${takeoffWeightDisplay}`;
+            } else {
+                elements.summaryTotal.innerHTML = `${formatFuel(totalFuel)} <span style="font-size: 0.75rem; color: var(--warning); font-weight: 600;">(+10K on deck req)</span>${takeoffWeightDisplay}`;
+            }
+        }
+
+        function formatFuel(lbs) {
+            return `${formatNumber(lbs)} lbs`;
+        }
+
+        function formatNumber(num) {
+            return Math.round(num).toLocaleString();
+        }
+    </script>
+    
+    <script>
+        // Register service worker for PWA functionality
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('Service Worker registered'))
+                    .catch(err => console.log('Service Worker registration failed'));
+            });
+        }
+        
+        // Handle install prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            // You can show custom install button here if you want
+        });
+    </script>
+</body>
+</html>

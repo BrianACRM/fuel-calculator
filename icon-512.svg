@@ -1,0 +1,15 @@
+<svg width="512" height="512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0a1628"/>
+      <stop offset="100%" style="stop-color:#050b14"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#bg)" rx="85"/>
+  <g fill="none" stroke="#00d4ff" stroke-width="16" stroke-linecap="round">
+    <line x1="256" y1="150" x2="256" y2="390"/>
+    <line x1="96" y1="283" x2="416" y2="283"/>
+    <line x1="176" y1="363" x2="336" y2="363"/>
+  </g>
+  <text x="256" y="465" text-anchor="middle" fill="#00d4ff" font-family="Arial" font-size="42" font-weight="bold">FUEL</text>
+</svg>
